@@ -6,7 +6,7 @@
 #include "WinApp.h"
 #include <dxcapi.h>
 #include <string>
-//#include "StringUtility.h"
+#include <cstdint>
 #include "externals/DirectXTex/DirectXTex.h"
 #include <chrono>
 
