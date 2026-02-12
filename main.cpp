@@ -8,8 +8,6 @@
 // Debug用のあれやこれを使えるようにする
 #include <wrl.h>
 //#include <xaudio2.h>
-#define DIRECTINPUT_VERSION   0x0800 //DirectInput
-#include <dinput.h>
 
 #include "Input.h"
 #include "WinApp.h"
@@ -26,14 +24,13 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
-#pragma comment(lib,"d3d12.lib")
+
 
 
 #include "externals/DirectXTex/DirectXTex.h"
 
 #include<fstream>
 #include<sstream>
-#include <minidumpapiset.h>
 #include <xaudio2.h>
 
 using namespace MatrixMath;
@@ -337,10 +334,10 @@ void SoundUnload(SoundData* soundData)
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
+	D3DResourceLeakChecker leakCheck;
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
 	IXAudio2MasteringVoice* masterVoice;
 
-	D3DResourceLeakChecker leakCheck;
 
 
 
@@ -413,87 +410,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-#ifdef _DEBUG
-
-	//Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = nullptr;
-	//if (SUCCEEDED(device->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
-	//	// やばいエラー時に止まる
-	//	infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-	//	// エラー時に止まる
-	//	infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-	//	// 警告時に泊まる
-	//	infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-	//	// 抑制するメッセージのＩＤ
-	//	D3D12_MESSAGE_ID denyIds[] = {
-	//		// windows11でのDXGIデバックレイヤーとDX12デバックレイヤーの相互作用バグによるエラーメッセージ
-	//		// https://stackoverflow.com/questions/69805245/directx-12-application-is-crashing-in-windows-11
-	//		D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE };
-	//	// 抑制するレベル
-	//	D3D12_MESSAGE_SEVERITY severities[] = { D3D12_MESSAGE_SEVERITY_INFO };
-	//	D3D12_INFO_QUEUE_FILTER filter{};
-	//	filter.DenyList.NumIDs = _countof(denyIds);
-	//	filter.DenyList.pIDList = denyIds;
-	//	filter.DenyList.NumSeverities = _countof(severities);
-	//	filter.DenyList.pSeverityList = severities;
-	//	// 指定したメッセージの表示wp抑制する
-	//	infoQueue->PushStorageFilter(&filter);
-	//	// 解放
-	//	infoQueue->Release();
-	//}
-
-#endif // _DEBUG
-
-
-
-
-#pragma region DescriptorSize
-
-#pragma endregion
-
-
-#pragma endregion
-
-#pragma region 頂点データの作成とビュー
-
-	// 実際に頂点リソースを作る
-	//Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = dxCommon->CreateBufferResource(sizeof(VertexData) * 6);
-
-	//// 頂点バッファビューを作成する
-	//D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
-	//// リソースの先頭のアドレスから使う
-	//vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	//// 使用するリソースのサイズは頂点3つ分
-	//vertexBufferView.SizeInBytes = sizeof(VertexData) * 6;
-	//// 1頂点あたりのサイズ
-	//vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-	// 頂点リソースにデータを書き込む
-	//VertexData* vertexData = nullptr;
-	// 書き込むためのアドレス取得
-	//vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	// 左下
-	//vertexData[0] = { -0.5f,-0.5f,0.0f,1.0f };
-	//vertexData[0].texcoord = { 0.0f,1.0f };
-	//// 上
-	//vertexData[1] = { 0.0f,0.5f,0.0f,1.0f };
-	//vertexData[1].texcoord = { 0.5f,0.0f };
-	//// 右下
-	//vertexData[2] = { 0.5f,-0.5f,0.0f,1.0f };
-	//vertexData[2].texcoord = { 1.0f,1.0f };
-
-
-	//// 左下2
-	//vertexData[3].position = { -0.5f,-0.5f,0.5f,1.0f };
-	//vertexData[3].texcoord = { 0.0f,1.0f };
-	//// 上2
-	//vertexData[4].position = { 0.0f,0.0f,0.0f,1.0f };
-	//vertexData[4].texcoord = { 0.5f,0.0f };
-	//// 右下2
-	//vertexData[5].position = { 0.5f,-0.5f,-0.5f,1.0f };
-	//vertexData[5].texcoord = { 1.0f,1.0f };
-
-
-#pragma endregion
 
 #pragma region Index用
 
