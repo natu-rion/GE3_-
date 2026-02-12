@@ -1,25 +1,25 @@
 #include "DirectXCommon.h"
 #include <cassert>
+#include <filesystem>
+#include <chrono>
 #include <format>
 #include <iostream>
-#include <filesystem>
-#include <thread>
-//#include "Logger.h"
-#include "StringUtility.h"
-
 #include "externals/DirectXTex/d3dx12.h"
-#include "externals/imgui/imgui.h"
+
+
+#include "externals/imgui//imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
+#include <thread>
 
-
-#pragma comment(lib,"d3d12.lib")
+#pragma comment(lib, "dxcompiler.lib")
+#pragma comment(lib, "d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 
 
 using namespace Microsoft::WRL;
-//using namespace StringUtility;
-//using namespace Logger;
+
+const uint32_t DirectXCommon::kMaxSRVCount = 512;
 
 
 void DirectXCommon::Initialize(WinApp* winApp) {
@@ -120,6 +120,35 @@ void DirectXCommon::Deviceinitialize() {
 	// デバイスの生成がうまくいかなかったので起動できない
 	assert(device != nullptr);
 	//Log(logStream, ConvertString(L"Complete create D3D12Device!!!\n"));// 初期化完了のログを出す
+
+#ifdef _DEBUG
+
+	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = nullptr;
+	if (SUCCEEDED(device->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
+		// やばいエラー時に止まる
+		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+		// エラー時に止まる
+		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+		// 警告時に泊まる
+		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+		// 抑制するメッセージのＩＤ
+		D3D12_MESSAGE_ID denyIds[] = {
+			// windows11でのDXGIデバックレイヤーとDX12デバックレイヤーの相互作用バグによるエラーメッセージ
+			// https://stackoverflow.com/questions/69805245/directx-12-application-is-crashing-in-windows-11
+			D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE };
+		// 抑制するレベル
+		D3D12_MESSAGE_SEVERITY severities[] = { D3D12_MESSAGE_SEVERITY_INFO };
+		D3D12_INFO_QUEUE_FILTER filter{};
+		filter.DenyList.NumIDs = _countof(denyIds);
+		filter.DenyList.pIDList = denyIds;
+		filter.DenyList.NumSeverities = _countof(severities);
+		filter.DenyList.pSeverityList = severities;
+		// 指定したメッセージの表示wp抑制する
+		infoQueue->PushStorageFilter(&filter);
+	}
+
+#endif // _DEBUG
+
 }
 
 
@@ -191,7 +220,7 @@ void DirectXCommon::CreateDescriptorHeaps()
 	descriptorSizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	descriptorSizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
-	srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+	srvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxSRVCount, true);
 	rtvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
 	dsvDescriptorHeap = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 }
@@ -207,7 +236,6 @@ void DirectXCommon::CreateRTV()
 	hr = swapChain->GetBuffer(1, IID_PPV_ARGS(&swapChainResources[1]));
 	assert(SUCCEEDED(hr));
 	// RTVの設定
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 出力結果をSRGBに変換して書き込む
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D; // 2dテクスチャとして読み込む
 	// ディスクリプタの先頭を取得する。
@@ -403,7 +431,7 @@ void DirectXCommon::PreDraw()
 	commandList->ResourceBarrier(1, &barrier);
 
 	//描画先のRTVを設定
-	commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, nullptr);
+	//commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, nullptr);
 
 	//描画先のDSVを設定
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();

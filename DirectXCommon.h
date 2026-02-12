@@ -6,9 +6,12 @@
 #include "WinApp.h"
 #include <dxcapi.h>
 #include <string>
-#include <cstdint>
+#include "StringUtility.h"
 #include "externals/DirectXTex/DirectXTex.h"
 #include <chrono>
+
+
+//extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
 class DirectXCommon
@@ -78,6 +81,10 @@ public://メンバ関数
 	Microsoft::WRL::ComPtr<ID3D12Resource>UploadTextureData(Microsoft::WRL::ComPtr<ID3D12Resource> texture, const DirectX::ScratchImage& mipImages);
 
 	static DirectX::ScratchImage LoadTexture(const std::string& filePath);
+
+	//最大SRV数(最大テクスチャ枚数)
+	static const uint32_t kMaxSRVCount;
+
 
 private:
 	WinApp* winApp = nullptr;
