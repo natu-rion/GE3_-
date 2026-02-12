@@ -1,9 +1,9 @@
 name: DebugBuild
 
 on:
-　push:
+  push:
     branches:
-      -master
+      - master
 
 env:
   SOLUTION_FILE_PATH: GE3_jugyou.sln
@@ -12,15 +12,15 @@ env:
 jobs:
   build:
     runs-on: windows-2022
-    
+
     steps:
-      -name: Checkout
-      uses: actions/checkout@v4
-      
-      -name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v2
-      with:
-        msbuild-architecture: x64
-        
-     -name: Build
-    run: msbuild ${{ env.SOLUTION_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }}
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+
+      - name: Build
+        run: msbuild ${{ env.SOLUTION_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }}
