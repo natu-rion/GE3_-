@@ -11,7 +11,7 @@
 
 void Input::Initialize(WinApp* winApp)
 {
-	//借りてきたWinAppのインスタンスうぃ記録
+	//借りてきたWinAppのインスタンス
 	this->winApp_ = winApp;
 
 	HRESULT result;
@@ -57,7 +57,7 @@ bool Input::PushKey(BYTE keyNumber)
 	if (key[keyNumber]) {
 		return true;
 	}
-	//そうでなければfalseを返す
+	//なければfalseを返す
 	return false;
 }
 
